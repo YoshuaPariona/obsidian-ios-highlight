@@ -1,134 +1,95 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Plugin } from 'obsidian';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.css';
 
-// Remember to rename these classes and interfaces!
+// Colores para los diferentes tokens
+const DEVICE_CONFIG_COLOR = 'color: #ff0000'; // Rojo para configuraciones de dispositivos
+const COMMAND_COLOR = 'color: #008000'; // Verde para comandos
+const COMMENT_COLOR = 'color: #888'; // Gris para comentarios
+const CURLY_BRACES_COLOR = 'color: #00ffff'; // Celeste para texto dentro de llaves
+const CODE_BLOCK_BACKGROUND_COLOR = 'background-color: #f5f5f5'; // Fondo para bloques de código
 
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+// Define el lenguaje personalizado para IOS
+Prism.languages.ios = {
+  // Resalta configuraciones de dispositivos como SW1(config)#, SW1(config-if)#, etc.
+  'device-config': {
+    pattern: /(\w+(?:\(\w+(?:-\w+)?\)#))/g, // Patrones como "nombre(modo)#"
+    alias: 'keyword' // Usa el estilo definido para 'keyword' en CSS
+  },
+  // Resalta comandos específicos como int, description, spanning-tree, etc.
+  'command': {
+    pattern: /\b(int|description|spanning-tree|portfast|bpduguard|enable)\b/g, // Añade más comandos aquí separados por |
+    alias: 'function' // Usa el estilo definido para 'function' en CSS
+  },
+  // Resalta líneas de comentarios que comienzan con !
+  'comment-line': {
+    pattern: /^!.*$/gm, // Líneas que comienzan con !
+    alias: 'comment' // Usa el estilo definido para 'comment' en CSS
+  },
+  // Resalta cualquier texto dentro de llaves {}
+  'curly-braces': {
+    pattern: /\{[^}]*\}/g, // Texto dentro de llaves
+    alias: 'curly-braces' // Usa el estilo definido para 'curly-braces' en CSS
+  }
+};
 
 export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+  private styleEl: HTMLStyleElement;
 
-	async onload() {
-		await this.loadSettings();
+  async onload() {
+    console.log('Plugin loaded');
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+    // Añadir estilos CSS personalizados para los tokens definidos
+    this.styleEl = document.createElement('style');
+    this.styleEl.textContent = `
+      code.language-ios {
+        display: block;
+        ${CODE_BLOCK_BACKGROUND_COLOR};
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .token.keyword {
+        ${DEVICE_CONFIG_COLOR} !important;
+        font-weight: bold;
+      }
+      .token.function {
+        ${COMMAND_COLOR} !important;
+        font-weight: bold;
+      }
+      .token.comment {
+        ${COMMENT_COLOR} !important;
+        font-style: italic;
+      }
+      .token.curly-braces {
+        ${CURLY_BRACES_COLOR} !important;
+        font-style: italic;
+        font-weight: bold;
+      }
+    `;
+    document.head.appendChild(this.styleEl);
+    console.log('CSS styles added');
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+    // Registrar el procesador para el modo de lectura
+    this.registerMarkdownPostProcessor((element) => {
+      this.applyHighlighting(element);
+    });
+  }
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+  onunload() {
+    // Limpiar cualquier cosa que hayas añadido
+    if (this.styleEl && this.styleEl.parentNode) {
+      document.head.removeChild(this.styleEl);
+    }
+  }
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
-
-	onunload() {
-
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
+  // Aplica el resaltado de sintaxis a los bloques de código
+  private applyHighlighting(element: HTMLElement) {
+    console.log('Applying highlighting');
+    element.querySelectorAll('code.language-ios').forEach((codeBlock) => {
+      if (codeBlock instanceof HTMLElement) {
+        console.log('Highlighting code block:', codeBlock);
+        codeBlock.innerHTML = Prism.highlight(codeBlock.innerText, Prism.languages.ios, 'ios');
+      }
+    });
+  }
 }
