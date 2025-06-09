@@ -1,37 +1,18 @@
+// main.ts
 import { Plugin } from 'obsidian';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.css';
+import { iosPatterns } from './patterns'; // Importa los patrones desde patterns.ts
 
 // Colores para los diferentes tokens
-const DEVICE_CONFIG_COLOR = 'color: #ff0000'; // Rojo para configuraciones de dispositivos
-const COMMAND_COLOR = 'color: #008000'; // Verde para comandos
-const COMMENT_COLOR = 'color: #888'; // Gris para comentarios
-const CURLY_BRACES_COLOR = 'color: #00ffff'; // Celeste para texto dentro de llaves
-const CODE_BLOCK_BACKGROUND_COLOR = 'background-color: #f5f5f5'; // Fondo para bloques de código
+const COMMAND_COLOR = 'color: #008000'; // Comandos (alta) - Verde fuerte
+const CURLY_BRACES_COLOR = 'color: #d35400'; // Texto dentro de llaves del usuario (media) - Naranja oscuro
+const DEVICE_CONFIG_COLOR = 'color: #5555ff'; // Dispositivos (baja) - Azul moderado
+const COMMENT_COLOR = 'color: #888'; // Comentarios (fija) - Gris neutro
+const CODE_BLOCK_BACKGROUND_COLOR = 'background-color: #ffffff'; // Fondo blanco para bloques de código
 
-// Define el lenguaje personalizado para IOS
-Prism.languages.ios = {
-  // Resalta configuraciones de dispositivos como SW1(config)#, SW1(config-if)#, etc.
-  'device-config': {
-    pattern: /(\w+(?:\(\w+(?:-\w+)?\)#))/g, // Patrones como "nombre(modo)#"
-    alias: 'keyword' // Usa el estilo definido para 'keyword' en CSS
-  },
-  // Resalta comandos específicos como int, description, spanning-tree, etc.
-  'command': {
-    pattern: /\b(int|description|spanning-tree|portfast|bpduguard|enable)\b/g, // Añade más comandos aquí separados por |
-    alias: 'function' // Usa el estilo definido para 'function' en CSS
-  },
-  // Resalta líneas de comentarios que comienzan con !
-  'comment-line': {
-    pattern: /^!.*$/gm, // Líneas que comienzan con !
-    alias: 'comment' // Usa el estilo definido para 'comment' en CSS
-  },
-  // Resalta cualquier texto dentro de llaves {}
-  'curly-braces': {
-    pattern: /\{[^}]*\}/g, // Texto dentro de llaves
-    alias: 'curly-braces' // Usa el estilo definido para 'curly-braces' en CSS
-  }
-};
+// Define el lenguaje personalizado para IOS usando los patrones importados
+Prism.languages.ios = iosPatterns;
 
 export default class MyPlugin extends Plugin {
   private styleEl: HTMLStyleElement;
@@ -44,26 +25,24 @@ export default class MyPlugin extends Plugin {
     this.styleEl.textContent = `
       code.language-ios {
         display: block;
-        ${CODE_BLOCK_BACKGROUND_COLOR};
-        padding: 10px;
-        border-radius: 5px;
+        ${CODE_BLOCK_BACKGROUND_COLOR} !important;
+        margin: -15px !important;
+        padding: 10px !important;
       }
       .token.keyword {
         ${DEVICE_CONFIG_COLOR} !important;
-        font-weight: bold;
       }
       .token.function {
         ${COMMAND_COLOR} !important;
-        font-weight: bold;
+        font-weight: bold !important;
       }
       .token.comment {
         ${COMMENT_COLOR} !important;
-        font-style: italic;
+        font-style: italic !important;
       }
       .token.curly-braces {
         ${CURLY_BRACES_COLOR} !important;
-        font-style: italic;
-        font-weight: bold;
+        font-style: italic !important;
       }
     `;
     document.head.appendChild(this.styleEl);

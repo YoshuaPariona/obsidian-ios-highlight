@@ -1,6 +1,6 @@
 {
   "id": "obsidian-ios-highlight",
-  "name": "IOS Highlight",
+  "name": "A IOS Highlight",
   "version": "0.5.0",
   "minAppVersion": "0.15.0",
   "description": "A plugin to highlight IOS configurations in Obsidian.",
