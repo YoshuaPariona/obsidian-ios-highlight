@@ -9,19 +9,19 @@ const COMMAND_PATTERN = [
   'do',
 
   // Configuración de seguridad
-  'secret', 'password', 'passwords', 'min-length', 'attempts', 'within', 'block-for',
-  'service', 'encryption', 'access', 'permit', 'deny', 'local', 'username',
-  'domain-name', 'domain-lookup', 'ssh', 'telnet', 'transport', 'input', 'vty',
-  'exec-timeout', 'login', 'line', 'privilege', 'key', 'generate', 'rsa',
-  'authentication-retries',
+  'secret', 'password', 'passwords', 'min-length', 'attempts', 'within', 'block-for', 'tacacs+',
+  'service', 'encryption', 'access', 'permit', 'deny', 'local', 'username', 'tacacs-server',
+  'domain-name', 'domain-lookup', 'ssh', 'telnet', 'transport', 'input', 'vty', 'line-protocol',
+  'exec-timeout', 'login', 'line', 'privilege', 'key', 'generate', 'rsa', 'new-model',
+  'authentication-retries', 'aaa', 'authentication', 'group', 'radius', 'radius-server',
 
   // VLAN y enlaces troncales
-  'switchport', 'mode', 'vlan', 'name', 'trunk', 'encapsulation', 'allowed', 'range', 'dot1q',
-  'channel-group', 'port-channel', 'channel-protocol', 'pagp', 'lacp', 'etherchannel',
+  'switchport', 'mode', 'vlan', 'name', 'trunk', 'encapsulation', 'allowed', 'range', 'dot1q', 'native',
+  'channel-group', 'port-channel', 'channel-protocol', 'pagp', 'lacp', 'etherchannel', 'on',
 
   // Seguridad en switch y control de tráfico
-  'security', 'maximum', 'mac', 'mac-address-table', 'sticky', 'violation', 'protect', 'restrict',
-  'spanning-tree', 'portfast', 'bpduguard', 'root', 'primary', 'secondary', 'rapid-pvst',
+  'security', 'maximum', 'mac', 'mac-address-table', 'sticky', 'violation', 'protect', 'restrict', 'mac-address',
+  'spanning-tree', 'portfast', 'bpduguard', 'root', 'primary', 'secondary', 'rapid-pvst', 'port-security',
 
   // Protocolos de enrutamiento
   'router', 'network', 'area', 'ospf', 'eigrp', 'bgp', 'rip', 'isis', 'autonomous',
@@ -33,10 +33,10 @@ const COMMAND_PATTERN = [
   'loopback', 'tunnel', 'virtual-template', 'dialer', 'subinterface',
 
   // Servicios de red
-  'dhcp', 'ip-dhcp', 'pool', 'default', 'dns', 'dns-server', 'server', 'lease', 'excluded-address',
+  'dhcp', 'ip-dhcp', 'pool', 'default', 'dns', 'dns-server', 'server', 'lease', 'excluded-address', 'ra', 'suppress',
   'helper-address', 'default-router', 'tftp', 'nat', 'inside', 'outside', 'source', 'list', 'overload',
-  'default-gateway', 'unicast-routing',
-
+  'default-gateway', 'unicast-routing', 'snooping', 'relay', 'trust', 'trust-all', 'inspection', 'src-mac',
+  'nd', 'destination', 'managed-config-flag', 'validate', 'other-config-flag', 'dst-mac', 'limit', 'rate', 'information',
   // QoS
   'class-map', 'match', 'policy-map', 'set', 'service-policy', 'priority',
   'bandwidth', 'queue', 'shape', 'police', 'fair-queue', 'random-detect', 'congestion',
@@ -51,10 +51,11 @@ const COMMAND_PATTERN = [
   'clock', 'controllers',
 
   // IPv6
-  'ipv6', 'unicast', 'routing', 'prefix', 'dual-ipv4-and-ipv6',
+  'ipv6', 'unicast', 'routing', 'prefix', 'dual-ipv4-and-ipv6', 'link-local',
 
   // FHRP
-  'standby', 'priority', 'preempt', 'glbp', 'track', 'decrement', 'hsrp', 'active',
+  'standby', 'priority', 'preempt', 'glbp', 'track', 'decrement', 'hsrp', 'active', 
+  'weighting', 'lower', 'line-protocol',
 
   // Control de tráfico y servicios avanzados
   'control-plane', 'energywise', 'power', 'inline', 'vstack',

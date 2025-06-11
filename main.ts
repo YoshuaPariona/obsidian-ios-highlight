@@ -6,8 +6,8 @@ import { iosPatterns } from './patterns'; // Importa los patrones desde patterns
 
 // Colores para los diferentes tokens
 const COMMAND_COLOR = 'color: #008000'; // Comandos (alta) - Verde fuerte
-const CURLY_BRACES_COLOR = 'color: #d35400'; // Texto dentro de llaves del usuario (media) - Naranja oscuro
-const DEVICE_CONFIG_COLOR = 'color: #5555ff'; // Dispositivos (baja) - Azul moderado
+const CURLY_BRACES_COLOR = 'color: #ff5000'; // Texto dentro de llaves del usuario (media) - Naranja oscuro
+const DEVICE_CONFIG_COLOR = 'color: #8888ff'; // Dispositivos (baja) - Azul moderado
 const COMMENT_COLOR = 'color: #888'; // Comentarios (fija) - Gris neutro
 const CODE_BLOCK_BACKGROUND_COLOR = 'background-color: #ffffff'; // Fondo blanco para bloques de código
 
@@ -34,7 +34,6 @@ export default class MyPlugin extends Plugin {
       }
       .token.function {
         ${COMMAND_COLOR} !important;
-        font-weight: bold !important;
       }
       .token.comment {
         ${COMMENT_COLOR} !important;
